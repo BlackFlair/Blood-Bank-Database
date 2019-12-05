@@ -8,6 +8,9 @@
 
 
 from PyQt5 import QtCore, QtGui, QtWidgets
+import sqlite3
+import Database as db
+from InappropriateData import Ui_InappropriateData
 
 
 class Ui_Dialog(object):
@@ -64,7 +67,6 @@ class Ui_Dialog(object):
         font = QtGui.QFont()
         font.setPointSize(10)
         self.idLabel.setFont(font)
-        self.idLabel.setText("")
         self.idLabel.setObjectName("idLabel")
         self.locationLE = QtWidgets.QLineEdit(Dialog)
         self.locationLE.setGeometry(QtCore.QRect(160, 180, 181, 41))
@@ -78,6 +80,14 @@ class Ui_Dialog(object):
         font.setPointSize(10)
         self.add.setFont(font)
         self.add.setObjectName("add")
+
+        connObj = sqlite3.connect('BloodBank.db')
+        query = 'SELECT HID FROM HospitalDetails'
+        result = connObj.execute(query)
+        count = 0
+        for row_number, row_data in enumerate(result):
+            count += 1
+        self.idLabel.setText(str(count + 1))
 
         self.retranslateUi(Dialog)
         QtCore.QMetaObject.connectSlotsByName(Dialog)
@@ -94,11 +104,21 @@ class Ui_Dialog(object):
         self.label_4.setText(_translate("Dialog", "Associated Blood Bank"))
         self.add.setText(_translate("Dialog", "Add"))
 
+    def inappropriateData(self):
+        self.window = QtWidgets.QMainWindow()
+        self.ui = Ui_InappropriateData()
+        self.ui.setupUi(self.window)
+        self.window.show()
+
     def read(self):
         name = self.nameLE.text()
         location = self.locationLE.text()
         associatedBB = self.associationLE.text()
 
+        try:
+            db.hospital(name, location, associatedBB)
+        except:
+            self.inappropriateData()
 
 if __name__ == "__main__":
     import sys

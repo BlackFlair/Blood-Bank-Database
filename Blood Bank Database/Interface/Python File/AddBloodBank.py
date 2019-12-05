@@ -6,13 +6,14 @@
 #
 # WARNING! All changes made in this file will be lost!
 
-
+import sqlite3
 from PyQt5 import QtCore, QtGui, QtWidgets
-#import Database as DB
+import Database as db
+from InappropriateData import Ui_InappropriateData
+
 
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
-
         Dialog.setObjectName("Dialog")
         Dialog.resize(344, 382)
         self.verticalLayoutWidget = QtWidgets.QWidget(Dialog)
@@ -62,8 +63,16 @@ class Ui_Dialog(object):
         self.nameLE.setObjectName("nameLE")
         self.idLabel = QtWidgets.QLabel(Dialog)
         self.idLabel.setGeometry(QtCore.QRect(140, 30, 131, 41))
-        self.idLabel.setText("")
         self.idLabel.setObjectName("idLabel")
+
+        connObj = sqlite3.connect('BloodBank.db')
+        query = 'SELECT BBID FROM BloodBankDetails'
+        result = connObj.execute(query)
+        count = 0
+        for row_number, row_data in enumerate(result):
+            count += 1
+        self.idLabel.setText(str(count+1))
+
         self.locationLE = QtWidgets.QLineEdit(Dialog)
         self.locationLE.setGeometry(QtCore.QRect(140, 180, 181, 41))
         font = QtGui.QFont()
@@ -92,13 +101,21 @@ class Ui_Dialog(object):
         self.label_4.setText(_translate("Dialog", "Create Password"))
         self.add.setText(_translate("Dialog", "Add"))
 
+    def inappropriateData(self):
+        self.window = QtWidgets.QMainWindow()
+        self.ui = Ui_InappropriateData()
+        self.ui.setupUi(self.window)
+        self.window.show()
+
     def read(self):
         name = self.nameLE.text()
         location = self.locationLE.text()
         password = self.passwordLE.text()
 
-        DB.updateBBDetails(name,location,password)
-
+        try:
+            db.bloodbank(name, location, password)
+        except:
+            self.inappropriateData()
 
 if __name__ == "__main__":
     import sys

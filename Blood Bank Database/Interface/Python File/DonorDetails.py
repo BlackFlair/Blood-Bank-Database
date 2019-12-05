@@ -5,9 +5,11 @@
 # Created by: PyQt5 UI code generator 5.13.0
 #
 # WARNING! All changes made in this file will be lost!
-
+import sqlite3
 
 from PyQt5 import QtCore, QtGui, QtWidgets
+import Database as db
+from InappropriateData import Ui_InappropriateData
 
 
 class Ui_MainWindow(object):
@@ -88,7 +90,7 @@ class Ui_MainWindow(object):
         self.femaleRB.setFont(font)
         self.femaleRB.setObjectName("femaleRB")
         self.horizontalLayout.addWidget(self.femaleRB)
-        self.addressTE = QtWidgets.QTextEdit(self.centralwidget)
+        self.addressTE = QtWidgets.QLineEdit(self.centralwidget)
         self.addressTE.setGeometry(QtCore.QRect(110, 190, 200, 81))
         self.addressTE.setObjectName("addressTE")
         self.phoneLE = QtWidgets.QLineEdit(self.centralwidget)
@@ -144,8 +146,18 @@ class Ui_MainWindow(object):
         self.statusbar.setObjectName("statusbar")
         MainWindow.setStatusBar(self.statusbar)
 
+        connObj = sqlite3.connect('BloodBank.db')
+        query = 'SELECT DID FROM DonorDetails'
+        result = connObj.execute(query)
+        count = 0
+        for row_number, row_data in enumerate(result):
+            count += 1
+        self.idLabel.setText(str(count + 1))
+
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
+
+        self.addBtn.clicked.connect(self.read)
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
@@ -162,14 +174,46 @@ class Ui_MainWindow(object):
         self.label_9.setText(_translate("MainWindow", "Last Donated"))
         self.addBtn.setText(_translate("MainWindow", "Add To Record"))
         self.bloodGroupCB.setItemText(0, _translate("MainWindow", "Select Group"))
-        self.bloodGroupCB.setItemText(1, _translate("MainWindow", "A +"))
-        self.bloodGroupCB.setItemText(2, _translate("MainWindow", "A -"))
-        self.bloodGroupCB.setItemText(3, _translate("MainWindow", "B +"))
-        self.bloodGroupCB.setItemText(4, _translate("MainWindow", "B -"))
-        self.bloodGroupCB.setItemText(5, _translate("MainWindow", "O +"))
-        self.bloodGroupCB.setItemText(6, _translate("MainWindow", "O -"))
-        self.bloodGroupCB.setItemText(7, _translate("MainWindow", "AB +"))
-        self.bloodGroupCB.setItemText(8, _translate("MainWindow", "AB -"))
+        self.bloodGroupCB.setItemText(1, _translate("MainWindow", "A+"))
+        self.bloodGroupCB.setItemText(2, _translate("MainWindow", "A-"))
+        self.bloodGroupCB.setItemText(3, _translate("MainWindow", "B+"))
+        self.bloodGroupCB.setItemText(4, _translate("MainWindow", "B-"))
+        self.bloodGroupCB.setItemText(5, _translate("MainWindow", "O+"))
+        self.bloodGroupCB.setItemText(6, _translate("MainWindow", "O-"))
+        self.bloodGroupCB.setItemText(7, _translate("MainWindow", "AB+"))
+        self.bloodGroupCB.setItemText(8, _translate("MainWindow", "AB-"))
+
+    def inappropriateData(self):
+        self.window = QtWidgets.QMainWindow()
+        self.ui = Ui_InappropriateData()
+        self.ui.setupUi(self.window)
+        self.window.show()
+
+    def read(self):
+
+        name = self.nameLE.text()
+        address = self.addressTE.text()
+        phoneS = self.phoneLE.text()
+        email = self.emailLE.text()
+        male = self.maleRB.isChecked()
+        female = self.femaleRB.isChecked()
+
+        if (male == True):
+            gender = 'M'
+        if (female == True):
+            gender = 'F'
+        if (male == False and female == False):
+            gender = 'INVALID'
+
+        bloodGroup = str(self.bloodGroupCB.currentText())
+
+        lastDonated = '00-00-0000'  # self.lastDonatedDE.currentText()
+
+        try:
+            phone = int(phoneS)
+            db.donorDetails(name, address, phone, email, gender, bloodGroup, lastDonated)
+        except:
+            self.inappropriateData()
 
 
 if __name__ == "__main__":

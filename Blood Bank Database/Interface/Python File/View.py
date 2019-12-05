@@ -2,27 +2,33 @@
 
 # Form implementation generated from reading ui file 'View.ui'
 #
-# Created by: PyQt5 UI code generator 5.13.0
+# Created by: PyQt5 UI code generator 5.13.2
 #
 # WARNING! All changes made in this file will be lost!
 
 
 from PyQt5 import QtCore, QtGui, QtWidgets
+import sqlite3
 
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(800, 600)
+        MainWindow.resize(448, 513)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
+        self.viewTV = QtWidgets.QTableWidget(self.centralwidget)
+        self.viewTV.setGeometry(QtCore.QRect(5, 1, 441, 381))
+        self.viewTV.setRowCount(20)
+        self.viewTV.setColumnCount(4)
+        self.viewTV.setObjectName("viewTV")
+        self.BBBtn = QtWidgets.QPushButton(self.centralwidget)
+        self.BBBtn.setGeometry(QtCore.QRect(170, 400, 81, 31))
+        self.BBBtn.setObjectName("BBBtn")
+        self.HBtn = QtWidgets.QPushButton(self.centralwidget)
+        self.HBtn.setGeometry(QtCore.QRect(170, 440, 81, 31))
+        self.HBtn.setObjectName("HBtn")
         MainWindow.setCentralWidget(self.centralwidget)
-        self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 800, 21))
-        self.menubar.setObjectName("menubar")
-        self.menuSelect = QtWidgets.QMenu(self.menubar)
-        self.menuSelect.setObjectName("menuSelect")
-        MainWindow.setMenuBar(self.menubar)
         self.statusbar = QtWidgets.QStatusBar(MainWindow)
         self.statusbar.setObjectName("statusbar")
         MainWindow.setStatusBar(self.statusbar)
@@ -30,19 +36,50 @@ class Ui_MainWindow(object):
         self.actionBlood_Bank.setObjectName("actionBlood_Bank")
         self.actionHospital = QtWidgets.QAction(MainWindow)
         self.actionHospital.setObjectName("actionHospital")
-        self.menuSelect.addAction(self.actionBlood_Bank)
-        self.menuSelect.addAction(self.actionHospital)
-        self.menubar.addAction(self.menuSelect.menuAction())
 
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
+        self.viewTV.setRowCount(0)
+
+
+        self.BBBtn.clicked.connect(self.loadDataBB)
+        self.HBtn.clicked.connect(self.loadDataH)
+
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
-        self.menuSelect.setTitle(_translate("MainWindow", "Select"))
+        self.BBBtn.setText(_translate("MainWindow", "Blood Bank"))
+        self.HBtn.setText(_translate("MainWindow", "Hospital"))
         self.actionBlood_Bank.setText(_translate("MainWindow", "Blood Bank"))
         self.actionHospital.setText(_translate("MainWindow", "Hospital"))
+
+    def loadDataBB(self):
+
+        connObj = sqlite3.connect('BloodBank.db')
+        query = "SELECT * FROM BloodBankDetails"
+        result = connObj.execute(query)
+        self.viewTV.setRowCount(0)
+
+        for row_number, row_data in enumerate(result):
+            self.viewTV.insertRow(row_number)
+            for col_number, data in enumerate(row_data):
+                self.viewTV.setItem(row_number, col_number, QtWidgets.QTableWidgetItem(str(data)))
+
+        connObj.close()
+
+    def loadDataH(self):
+        connObj = sqlite3.connect('BloodBank.db')
+        query = "SELECT * FROM HospitalDetails"
+        result = connObj.execute(query)
+        self.viewTV.setRowCount(0)
+
+        for row_number, row_data in enumerate(result):
+            self.viewTV.insertRow(row_number)
+            for col_number, data in enumerate(row_data):
+                self.viewTV.setItem(row_number, col_number, QtWidgets.QTableWidgetItem(str(data)))
+
+        connObj.close()
 
 
 if __name__ == "__main__":

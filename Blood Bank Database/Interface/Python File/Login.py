@@ -8,15 +8,24 @@
 
 
 from PyQt5 import QtCore, QtGui, QtWidgets
+
 from InvalidCredentials import Ui_invalidCredentials
 import AddBloodBank as bb
 import AddHospital as h
 import Options as o
-import Database as DB
+import Database as db
+import sqlite3
 
 class Ui_Dialog(object):
+
+    superID = 0
+
+    global dbId
+    global dbPassword
+
     def setupUi(self, Dialog):
-        Dialog.setObjectName("Dialog")
+
+        Dialog.setObjectName("Login")
         Dialog.resize(366, 503)
         self.loginBtn = QtWidgets.QPushButton(Dialog)
         self.loginBtn.setGeometry(QtCore.QRect(234, 332, 91, 31))
@@ -97,10 +106,16 @@ class Ui_Dialog(object):
         self.window.show()
 
     def verify(self):
+
+        connObj = sqlite3.connect('BloodBank.db')
+
+        global id
+
         id = self.idLE.text()
         password = self.passwordLE.text()
 
-        if id == "master" and password == "master123":
+        if ((id == "master" and password == "master123") or (password == dbPassword)):
+            db.bbid = id
             self.options()
         else:
             self.invalidCredentials()
